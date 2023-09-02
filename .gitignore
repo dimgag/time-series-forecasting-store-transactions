@@ -1,2 +1,7 @@
+### macOS generated files ###
+# General
 .DS_Store
-
+.DS_Store?
+.DS_store
+.AppleDouble
+.LSOverride
