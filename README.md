@@ -1,7 +1,7 @@
-# Albert Heijn Data Science N-Forecasting Case Study
+# Time Series N-Forecasting Store Transcactions
 
 ## Context
-The unavailability of products in our stores (due to stockouts) is a main driver for customer dissatisfaction and lost sales. Simultaneously, overstocking of our products contributes to food waste (due to spoilage), incurring high costs and causing environmental harm. Therefore, it is crucial for Albert Heijn to obtain reliable estimates on the daily number of customers in each store in the time to come. This helps us to optimize:
+The unavailability of products in our stores (due to stockouts) is a main driver for customer dissatisfaction and lost sales. Simultaneously, overstocking of our products contributes to food waste (due to spoilage), incurring high costs and causing environmental harm. Therefore, it is crucial for Supermarket to obtain reliable estimates on the daily number of customers in each store in the time to come. This helps us to optimize:
 
 - replenishment decisions (i.e., deciding how much of each product to send to each store over time), and
 - staffing decisions (i.e., how many employees to schedule per store to make sure the store operations run smoothly).
@@ -27,16 +27,9 @@ You are provided with an historical dataset containing the following fields:
 - `sales_date`: The date on which the transactions occurred
 - `store_hashed`: a hashed version of the store number
 - `n_transactions`: The number of transactions that took place in that store on that day - the target of the prediction in the assignment
-- `store_format`: An categorical feature indicating that the store has a particular type (e.g. To Go or XL)
+- `store_format`: An categorical feature indicating that the store has a particular type (e.g. To-Go or XL stores.)
 - `zipcode_region`: The first two digits of the zipcode where the store is located
 - `region`: The holiday region in which the store falls
 - A number of binary features indicating whether a particular date falls on a national holiday or a regional school vacation period.
 - `datetime_store_open`: The time at which the store opened on the sales_date
 - `datetime_store_closed`: The time at which the store closed on the sales_date
-
-You may add other public datasets if you wish to improve the forecast (e.g. weather related data) – this is however not required.
-
-| File Name | Description |
-| --- | --- |
-| `dg_preprocessing_EDA.ipynb` | Data Preprocessing & Exploratory Data Analysis|
-|`dg_TSA_TSF.ipynb` | Time Series Analysis & Forecasting |
