@@ -7,6 +7,6 @@
 .LSOverride
 
 
-# Large files
-n_forecast_preprocessed.parquet
-n_forecast.parquet
+# Data
+
+data/*
