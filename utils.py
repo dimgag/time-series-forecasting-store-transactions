@@ -5,6 +5,20 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 
+# test stationarity of the store
+def check_stationarity(ts):
+    dftest = adfuller(ts)
+    adf = dftest[0]
+    pvalue = dftest[1]
+    critical_value = dftest[4]['5%']
+    if (pvalue < 0.05) and (adf < critical_value):
+        print('The series is stationary')
+    else:
+        print('The series is NOT stationary')
+
+# check_stationarity(store['n_transactions'])
+
+
 
 # Stationarity test ADF
 def test_stationarity_adf(timeseries):
@@ -29,7 +43,7 @@ def test_stationarity_adf(timeseries):
         for key,value in dftest[4].items():
             dfoutput['Critical Value (%s)'%key] = value
         
-        if dftest[1] < 0.05:
+        if (dftest[1] < 0.05) and (dftest[0] < dftest[4]['5%']): # add also the condition of the test statistic being lower than the critical value
             print('The p-value is lower than 0.05, the null hypothesis is rejected and the data is stationary')
         else:
             print('The p-value is higher than 0.05, the null hypothesis is accepted and the data is non-stationary')
@@ -119,3 +133,6 @@ def test_stores_stationarity(stationary_data, plot=False):
     print('Stationary stores:', len(stationary_stores))
     print('Non stationary stores:', len(non_stationary_stores))
     return stationary_stores, non_stationary_stores
+
+
+
