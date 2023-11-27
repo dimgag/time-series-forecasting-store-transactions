@@ -1,11 +1,13 @@
 # Utilities functions for the project
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
-from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
 import itertools
+
 
 
 # Stationarity test ADF
@@ -157,17 +159,16 @@ def differencing(data, non_stationary_idx):
 
 
 # Find best parameters for ARIMA model
+
 def arima_hyperparameters(data, diff=0):
-    '''Apply find the best parameters for ARIMA model
-    and return the best parameters for each store'''
-    
     best_aic = np.inf
     best_pdq = None
 
     p = q = range(0, 10)
     d = [diff]
-    
+
     pdq = list(itertools.product(p, d, q))
+
 
     for param in pdq:
         try:
@@ -176,12 +177,10 @@ def arima_hyperparameters(data, diff=0):
             if model_arima_fit.aic < best_aic:
                 best_aic = model_arima_fit.aic
                 best_pdq = param
-        except:
+
+        except Exception as e:
+            print(f"Error: {e} with parameters {param}")
             continue
-
+        
+    print(f'Best ARIMA parameters: {best_pdq} with AIC: {best_aic}')
     return best_pdq
-
-
-
-
-
