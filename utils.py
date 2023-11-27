@@ -4,20 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
-
-# test stationarity of the store
-def check_stationarity(ts):
-    dftest = adfuller(ts)
-    adf = dftest[0]
-    pvalue = dftest[1]
-    critical_value = dftest[4]['5%']
-    if (pvalue < 0.05) and (adf < critical_value):
-        print('The series is stationary')
-    else:
-        print('The series is NOT stationary')
-
-# check_stationarity(store['n_transactions'])
-
+from statsmodels.tsa.arima_model import ARIMA
+import itertools
 
 
 # Stationarity test ADF
@@ -77,7 +65,7 @@ def test_stationarity_kpss(timeseries):
 
 
 # Test stationarity for stores
-def test_stores_stationarity(stationary_data, plot=False):
+def test_stores_stationarity(stationary_data, plot=False, results=False):
     """
     Test the stationarity of time series data for each store in a given dataset.
 
@@ -97,8 +85,8 @@ def test_stores_stationarity(stationary_data, plot=False):
     """
     rolmean = {}
     rolstd = {}
-    stationary_stores = []
-    non_stationary_stores = []
+    stationary = []
+    non_stationary = []
 
     for store in stationary_data['store_hashed'].unique():
         store_data = stationary_data[stationary_data['store_hashed'] == store]
@@ -116,23 +104,84 @@ def test_stores_stationarity(stationary_data, plot=False):
             plt.title('Rolling Mean & Standard Deviation')
             plt.show()
 
-        # print('Results of Dickey-Fuller Test:')
-        dftest = adfuller(store_data['n_transactions'], autolag='AIC', maxlag=12)
+
+        dftest = adfuller(store_data['n_transactions'], autolag='AIC')
         dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
 
         for key,value in dftest[4].items():
             dfoutput['Critical Value (%s)'%key] = value
 
-        if dftest[1] < 0.05:
-            # print('The p-value is lower than 0.05, the null hypothesis is rejected and the data is stationary')
-            stationary_stores.append(store)
+        if dftest[1] < 0.05 and dftest[0] < dftest[4]['5%']:
+            stationary.append(store)
         else:
-            # print('The p-value is higher than 0.05, the null hypothesis is accepted and the data is non-stationary')
-            non_stationary_stores.append(store)
+            non_stationary.append(store)
         
-    print('Stationary stores:', len(stationary_stores))
-    print('Non stationary stores:', len(non_stationary_stores))
-    return stationary_stores, non_stationary_stores
+        if results == True:
+            print('Results of Dickey-Fuller Test for store {}:'.format(store))
+            print(dfoutput)
+            print('\n')
+
+    print('Stationary stores:', len(stationary))
+    print('Non stationary stores:', len(non_stationary))
+    return stationary, non_stationary
+
+
+
+
+
+def differencing(data, non_stationary_idx):
+    # Function to apply differencing in time series data to make them stationary
+    stationary = []
+    non_stationary = []
+    for idx in non_stationary_idx:
+        store_data = data[data['store_hashed'] == idx]
+        
+        # Apply differencing 
+        diff = store_data['n_transactions'].diff().dropna()
+
+        # Run ADF test
+        dftest = adfuller(diff, autolag='AIC')
+        if dftest[1] < 0.05 and dftest[0] < dftest[4]['5%']:
+            # print(f'Store {idx} is now stationary')
+            data.loc[data['store_hashed'] == idx, 'n_transactions'] = diff
+            stationary.append(idx)
+
+        else:
+            # print(f'Store {idx} is still non-stationary')
+            non_stationary.append(idx)
+    
+    print('Stationary stores:', len(stationary))
+    print('Non stationary stores:', len(non_stationary))
+    return stationary, non_stationary
+
+
+
+# Find best parameters for ARIMA model
+def arima_hyperparameters(data, diff=0):
+    '''Apply find the best parameters for ARIMA model
+    and return the best parameters for each store'''
+    
+    best_aic = np.inf
+    best_pdq = None
+
+    p = q = range(0, 10)
+    d = [diff]
+    
+    pdq = list(itertools.product(p, d, q))
+
+    for param in pdq:
+        try:
+            model_arima = ARIMA(data, order=param)
+            model_arima_fit = model_arima.fit()
+            if model_arima_fit.aic < best_aic:
+                best_aic = model_arima_fit.aic
+                best_pdq = param
+        except:
+            continue
+
+    return best_pdq
+
+
 
 
 
