@@ -6,7 +6,9 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
+from sklearn.model_selection import ParameterGrid
 import itertools
+
 
 
 
@@ -184,3 +186,46 @@ def arima_hyperparameters(data, diff=0):
         
     print(f'Best ARIMA parameters: {best_pdq} with AIC: {best_aic}')
     return best_pdq
+
+
+def arima_hyperparameters_grid_search(data, diff=0):
+    best_aic = np.inf
+    best_pdq = None
+
+    # Define the hyperparameters
+    hyperparameters = {'p': range(0, 10), 'd': [diff], 'q': range(0, 10)}
+
+    # Create the grid
+    grid = ParameterGrid(hyperparameters)
+
+    for params in grid:
+        try:
+            model_arima = ARIMA(data, order=(params['p'], params['d'], params['q']))
+            model_arima_fit = model_arima.fit()
+            if model_arima_fit.aic < best_aic:
+                best_aic = model_arima_fit.aic
+                best_pdq = (params['p'], params['d'], params['q'])
+        except Exception as e:
+            print(f"Error: {e} with parameters {params}")
+            continue
+        
+    print(f'Best ARIMA parameters: {best_pdq} with AIC: {best_aic}')
+    return best_pdq
+
+
+def train_arima_model(data, pdq):
+    arima_model = ARIMA(data, order=pdq)
+    arima_model_fit = arima_model.fit()
+    return arima_model_fit
+
+def forecast_arima(model_fit, steps=50):
+    future = pd.DataFrame(index=pd.date_range(start='2021-03-28', periods=50, freq='D'), columns=['n_transactions'])
+    future.sort_index(inplace=True)
+
+    forecast = model_fit.forecast(steps=steps)
+    forecast.index = future.index
+    future['n_transactions'] = forecast
+    
+    # actual = store['n_transactions']
+
+    return forecast[0]
