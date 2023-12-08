@@ -13,11 +13,6 @@ Your task is to develop a Python solution that forecasts the number of transacti
 
 We expect you to design your own model training and validation setup (this includes choosing an appropriate error metric for your forecasts). It is important for you to be able to convince us (your stakeholders) that your model is carefully designed and can generate good forecasts going forward.
 
-## Deliverables
-- A python Jupyter Notebook where we can see the results of your work, and follow how you approached the problem. Not all your code has to be in the notebook, you can also use scripts or a package to build your solution, but we want to be able to see the results easily. Please submit all of your code.
-- A short exploratory data analysis highlighting important characteristics of the data or problems you find in the data
-- Model evaluation with an analysis of the performance
-- Some comments on possible future improvements you would make if you worked further on this project
 
 ## Data
 The dataset has been derived from Albert Heijn data but manipulated and obfuscated in a way as to preserve commercially sensitive information. It is provided as a single parquet file: n_forecast.parquet
